@@ -1,4 +1,4 @@
-package com.example.bookshelf.ui.screens.favorite_screen
+package com.example.bookshelf.ui.screens.checkout_screen
 
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -11,7 +11,7 @@ import androidx.compose.ui.res.stringResource
 import com.example.bookshelf.R
 import com.example.bookshelf.ui.screens.components.ErrorScreen
 import com.example.bookshelf.ui.screens.components.LoadingScreen
-import com.example.bookshelf.ui.screens.query_screen.*
+import com.example.bookshelf.ui.screens.beer_inventory_screen.*
 
 @Composable
 fun FavoritesScreen(

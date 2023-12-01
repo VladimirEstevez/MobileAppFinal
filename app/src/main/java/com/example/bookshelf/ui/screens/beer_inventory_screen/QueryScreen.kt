@@ -1,4 +1,4 @@
-package com.example.bookshelf.ui.screens.query_screen
+package com.example.bookshelf.ui.screens.beer_inventory_screen
 
 import android.view.KeyEvent
 import androidx.compose.foundation.layout.*

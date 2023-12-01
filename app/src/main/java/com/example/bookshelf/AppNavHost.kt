@@ -8,9 +8,9 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import com.example.bookshelf.ui.screens.detail_screen.DetailScreen
 import com.example.bookshelf.ui.screens.detail_screen.DetailsViewModel
-import com.example.bookshelf.ui.screens.favorite_screen.FavoritesScreen
-import com.example.bookshelf.ui.screens.query_screen.QueryScreen
-import com.example.bookshelf.ui.screens.query_screen.QueryViewModel
+import com.example.bookshelf.ui.screens.checkout_screen.FavoritesScreen
+import com.example.bookshelf.ui.screens.beer_inventory_screen.QueryScreen
+import com.example.bookshelf.ui.screens.beer_inventory_screen.QueryViewModel
 import com.example.bookshelf.ui.screens.menu_screen.MenuScreen
 
 @Composable
@@ -29,26 +29,26 @@ fun BookshelfNavHost(
         composable(route = AppDestinations.MenuScreen.name) {
             MenuScreen(
                 onSearchClick = {
-                    navController.navigate(AppDestinations.QueryScreen.name)
+                    navController.navigate(AppDestinations.BeerSelection.name)
                 },
                 onFavClick = {
-                    navController.navigate(AppDestinations.FavoriteScreen.name)
+                    //navController.navigate(AppDestinations.Back.name)
                 }
             )
         }
 
-        composable(route = AppDestinations.QueryScreen.name) {
+        composable(route = AppDestinations.BeerSelection.name) {
             QueryScreen(
                 viewModel = viewModel,
                 retryAction = { viewModel.getBooks() },
                 onDetailsClick = {
                     viewModel.selectedBookId = it.id
-                    navController.navigate(AppDestinations.DetailScreen.name)
+                    navController.navigate(AppDestinations.Checkout.name)
                 },
             )
         }
 
-        composable(route = AppDestinations.FavoriteScreen.name) {
+        composable(route = AppDestinations.MenuScreen.name) {
             FavoritesScreen(
                 viewModel = viewModel,
                 retryAction = { viewModel.getBooks() },
@@ -56,7 +56,7 @@ fun BookshelfNavHost(
             )
         }
 
-        composable(route = AppDestinations.DetailScreen.name) {
+        composable(route = AppDestinations.Checkout.name) {
             val detailViewModel : DetailsViewModel = viewModel(factory = DetailsViewModel.Factory)
             detailViewModel.getBook(viewModel.selectedBookId)
 
