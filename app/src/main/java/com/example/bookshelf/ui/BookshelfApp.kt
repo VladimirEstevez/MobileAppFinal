@@ -29,7 +29,7 @@ fun BookshelfApp(
 
     // Notes: Get the name of the current screen check for null
     val currentScreen = AppDestinations.valueOf(
-        backStackEntry?.destination?.route ?: AppDestinations.BeerSelection.name
+        backStackEntry?.destination?.route ?: AppDestinations.MenuScreen.name
     )
 
     // Notes: Boolean to check if we can navigate back. Check stack
