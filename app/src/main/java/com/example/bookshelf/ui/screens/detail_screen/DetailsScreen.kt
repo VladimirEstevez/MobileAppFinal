@@ -64,23 +64,23 @@ fun BookDetails(book: Book) {
             horizontalAlignment = Alignment.CenterHorizontally,
         ) {
             Text(
-                text = "Title: " + book.volumeInfo.title,
+                text = "Title: " + book.name,
                 style = MaterialTheme.typography.titleLarge
             )
             AsyncImage(
                 modifier = Modifier.fillMaxWidth(),
                 model = ImageRequest.Builder(context = LocalContext.current)
-                    .data(book.volumeInfo.imageLinks?.thumbnail)
+                    .data(book.image_url)
                     .crossfade(true)
                     .build(),
-                contentDescription = book.volumeInfo.title,
+                contentDescription = book.name,
                 contentScale = ContentScale.FillWidth,
                 error = painterResource(id = R.drawable.ic_broken_image),
                 placeholder = painterResource(id = R.drawable.loading_img),
             )
             Spacer(modifier = Modifier.height(24.dp))
             Text(
-                text = stringResource(R.string.book_subtitle, book.volumeInfo.subtitle),
+                text = stringResource(R.string.book_subtitle, book.name),
                 style = MaterialTheme.typography.titleMedium
             )
 //            Spacer(modifier = Modifier.height(8.dp))
@@ -94,21 +94,21 @@ fun BookDetails(book: Book) {
 //                style = MaterialTheme.typography.titleMedium
 //            )
 //            Spacer(modifier = Modifier.height(8.dp))
-            Text(
-                text = stringResource(R.string.book_authors, book.volumeInfo.allAuthors()),
-                style = MaterialTheme.typography.titleMedium
-            )
-
-            Spacer(modifier = Modifier.height(8.dp))
-            Text(
-                text = stringResource(R.string.book_price, book.saleInfo.getPrice2),
-                style = MaterialTheme.typography.titleMedium
-            )
-            Spacer(modifier = Modifier.height(8.dp))
-            Text(
-                text = "country: " + book.saleInfo.country,
-                style = MaterialTheme.typography.titleMedium
-            )
+//                                                Text(
+//                                                    text = stringResource(R.string.book_authors, book.volumeInfo.allAuthors()),
+//                                                    style = MaterialTheme.typography.titleMedium
+//                                                )
+//
+//                                                Spacer(modifier = Modifier.height(8.dp))
+//                                                Text(
+//                                                    text = stringResource(R.string.book_price, book.saleInfo.getPrice2),
+//                                                    style = MaterialTheme.typography.titleMedium
+//                                                )
+//                                                Spacer(modifier = Modifier.height(8.dp))
+//                                                Text(
+//                                                    text = "country: " + book.saleInfo.country,
+//                                                    style = MaterialTheme.typography.titleMedium
+//                                                )
 //            Spacer(modifier = Modifier.height(8.dp))
 //            Text(
 //                text = "isEbook: " + book.saleInfo.isEbook,
@@ -122,23 +122,23 @@ fun BookDetails(book: Book) {
 //                    style = MaterialTheme.typography.titleMedium
 //                )
 //            }
-            Spacer(modifier = Modifier.height(8.dp))
-            Text(
-                text = "listPrice: " + book.saleInfo.getPrice2,
-                style = MaterialTheme.typography.titleMedium
-            )
-
-
-//            Spacer(modifier = Modifier.height(8.dp))
-//            Text(
-//                text = "description: " + book.description,
-//                style = MaterialTheme.typography.bodyMedium
-//            )
-            Spacer(modifier = Modifier.height(8.dp))
-            Text(
-                text = "description: " + book.volumeInfo.description,
-                style = MaterialTheme.typography.bodyMedium
-            )
+//                                                                                                    Spacer(modifier = Modifier.height(8.dp))
+//                                                                                                    Text(
+//                                                                                                        text = "listPrice: " + book.saleInfo.getPrice2,
+//                                                                                                        style = MaterialTheme.typography.titleMedium
+//                                                                                                    )
+//
+//
+//                                                                                        //            Spacer(modifier = Modifier.height(8.dp))
+//                                                                                        //            Text(
+//                                                                                        //                text = "description: " + book.description,
+//                                                                                        //                style = MaterialTheme.typography.bodyMedium
+//                                                                                        //            )
+//                                                                                                    Spacer(modifier = Modifier.height(8.dp))
+//                                                                                                    Text(
+//                                                                                                        text = "description: " + book.volumeInfo.description,
+//                                                                                                        style = MaterialTheme.typography.bodyMedium
+//                                                                                                    )
 
 
 //            Spacer(modifier = Modifier.height(8.dp))

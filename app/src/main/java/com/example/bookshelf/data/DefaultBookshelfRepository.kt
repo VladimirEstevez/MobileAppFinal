@@ -1,5 +1,6 @@
 package com.example.bookshelf.data
 
+import android.util.Log
 import com.example.bookshelf.model.Book
 import com.example.bookshelf.network.BookshelfApiService
 
@@ -12,10 +13,13 @@ class DefaultBookshelfRepository(
     /** Retrieves list of Volumes from underlying data source */
     // Notes: List<Book>? NULLABLE
     override suspend fun getBooks(query: String): List<Book>? {
+        val formattedQuery = query.trim().replace(" ", "_")
         return try {
-            val res = bookshelfApiService.getBooks(query)
+            val res = bookshelfApiService.getBooks(formattedQuery)
+            Log.d("API_RESPONSE", "API response: ${res.body()}")
             if (res.isSuccessful) {
-                res.body()?.items ?: emptyList()
+                res.body()?.filter {   it.name.contains(query, ignoreCase = true) ||
+                        it.description.contains(query, ignoreCase = true) } ?: emptyList()
             } else {
                 emptyList()
             }
@@ -25,7 +29,7 @@ class DefaultBookshelfRepository(
         }
     }
 
-    override suspend fun getBook(id: String): Book? {
+    override suspend fun getBook(id: Int): Book? {
         return try {
             val res = bookshelfApiService.getBook(id)
             if (res.isSuccessful) {

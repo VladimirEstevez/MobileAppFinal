@@ -20,7 +20,7 @@ class DetailsViewModel(
     val uiStateDetail = _uiStateDetail.asStateFlow()
 
 
-    fun getBook(id: String) {
+    fun getBook(id: Int) {
         viewModelScope.launch {
             _uiStateDetail.value = try {
                 // Notes: List<Book>? NULLABLE

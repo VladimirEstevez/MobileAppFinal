@@ -24,7 +24,7 @@ fun QueryScreen(
     modifier: Modifier = Modifier,
     viewModel: QueryViewModel,
     retryAction: () -> Unit,
-    onDetailsClick: (Book) -> Unit,
+//    onDetailsClick: (Book) -> Unit,
 ) {
     val uiState = viewModel.uiState.collectAsState().value
     val uiStateQuery = viewModel.uiStateSearch.collectAsState().value
@@ -73,7 +73,7 @@ fun QueryScreen(
                     viewModel = viewModel,
                     bookshelfList = uiState.bookshelfList,
                     modifier = modifier,
-                    onDetailsClick = onDetailsClick,
+//                    onDetailsClick = onDetailsClick,
                 )
                 is QueryUiState.Error ->
                     ErrorScreen(retryAction = retryAction, modifier)

@@ -31,7 +31,7 @@ fun FavoritesScreen(
                     bookshelfList = bookshelfUiState.bookshelfList,
                     viewModel = viewModel,
                     modifier = modifier,
-                    onDetailsClick = { }
+//                    onDetailsClick = { }
                 )
                 else -> ErrorScreen(retryAction, modifier)
             }

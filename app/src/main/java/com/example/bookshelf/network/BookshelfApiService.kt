@@ -13,7 +13,7 @@ import retrofit2.http.Query
 interface BookshelfApiService {
 
     companion object {
-        const val BASE_URL = "https://www.googleapis.com/books/v1/"
+        const val BASE_URL = "https://api.punkapi.com/v2/ "
     }
 
     /**
@@ -21,9 +21,9 @@ interface BookshelfApiService {
      * The @GET annotation indicates that the "volumes" endpoint will be requested with the GET
      * HTTP method
      */
-    @GET("volumes")
-    suspend fun getBooks(@Query("q") query: String): Response<QueryResponse>
+    @GET("beers")
+    suspend fun getBooks(@Query("beer_name") query: String): Response<List<Book>>
 
-    @GET("volumes/{id}")
-    suspend fun getBook(@Path("id") id: String): Response<Book>
+    @GET("beers/{id}")
+    suspend fun getBook(@Path("id") id: Int): Response<Book>
 }

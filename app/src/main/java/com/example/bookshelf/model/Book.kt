@@ -4,18 +4,18 @@ import kotlinx.serialization.Serializable
 
 @Serializable
 data class Book(
-    val id: String,
-    val description: String,
-    val volumeInfo: VolumeInfo,
-    val saleInfo: SaleInfo
+   val id: Int,
+    val name: String,
+    val image_url: String,
+    val description: String
 ) {
     // Notes: This works too...
-    fun getPrice() : String {
-        if (saleInfo.listPrice == null) {
-            return ""
-        }
-        return "${saleInfo.listPrice.amount} ${saleInfo.listPrice.currency}"
-    }
+//    fun getPrice() : String {
+//        if (saleInfo.listPrice == null) {
+//            return ""
+//        }
+//        return "${saleInfo.listPrice.amount} ${saleInfo.listPrice.currency}"
+//    }
 
 }
 

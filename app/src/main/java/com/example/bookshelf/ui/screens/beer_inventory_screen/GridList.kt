@@ -33,7 +33,7 @@ fun GridList(
     viewModel: QueryViewModel,
     bookshelfList: List<Book>,
     modifier: Modifier = Modifier,
-    onDetailsClick: (Book) -> Unit,
+//    onDetailsClick: (Book) -> Unit,
 ) {
     if (bookshelfList.isEmpty()) {
         NothingFoundScreen()
@@ -50,7 +50,7 @@ fun GridList(
                 GridItem(
                     viewModel = viewModel,
                     book = it,
-                    onDetailsClick = onDetailsClick,
+//                    onDetailsClick = onDetailsClick,
                 )
             }
         }
@@ -64,7 +64,7 @@ private fun GridItem(
     viewModel: QueryViewModel,
     book: Book,
     modifier: Modifier = Modifier,
-    onDetailsClick: (Book) -> Unit,
+//    onDetailsClick: (Book) -> Unit,
 ) {
     var expanded by remember { mutableStateOf(false) }
     var favorite by remember { mutableStateOf(false) }
@@ -73,7 +73,7 @@ private fun GridItem(
     Log.d(TAG, viewModel.favoriteBooks.size.toString())
 
     Card(
-        onClick = { onDetailsClick(book) },
+//        onClick = { onDetailsClick(book) },
         //elevation = CardDefaults.elevatedCardElevation(),
         modifier = modifier
             .fillMaxWidth()
@@ -93,7 +93,7 @@ private fun GridItem(
                 modifier = Modifier
                     .aspectRatio(.6f),
                 model = ImageRequest.Builder(context = LocalContext.current)
-                    .data(book.volumeInfo.imageLinks?.thumbnail)
+                    .data(book.image_url)
                     .crossfade(true)
                     .build(),
                 contentDescription = null,
@@ -134,21 +134,21 @@ private fun GridItem(
                     //  I red that we can use <b> and <i> and others...
                     //  but is is not working...inside res > strings.xml
                     Text(
-                        text = stringResource(R.string.book_title, book.volumeInfo.title),
+                        text = stringResource(R.string.book_title, book.name),
                         style = MaterialTheme.typography.bodyLarge
                     )
-                    Text(
-                        text = stringResource(R.string.book_subtitle, book.volumeInfo.subtitle),
-                        style = MaterialTheme.typography.bodyMedium
-                    )
-                    Text(
-                        text = stringResource(R.string.book_authors, book.volumeInfo.allAuthors()),
-                        style = MaterialTheme.typography.bodySmall
-                    )
-                    Text(
-                        text = stringResource(R.string.book_price, book.saleInfo.getPrice2),
-                        style = MaterialTheme.typography.bodyLarge
-                    )
+//                    Text(
+//                        text = stringResource(R.string.book_subtitle, book.volumeInfo.subtitle),
+//                        style = MaterialTheme.typography.bodyMedium
+//                    )
+//                    Text(
+//                        text = stringResource(R.string.book_authors, book.volumeInfo.allAuthors()),
+//                        style = MaterialTheme.typography.bodySmall
+//                    )
+//                    Text(
+//                        text = stringResource(R.string.book_price, book.saleInfo.getPrice2),
+//                        style = MaterialTheme.typography.bodyLarge
+//                    )
                 }
             }
         }

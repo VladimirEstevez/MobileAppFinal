@@ -10,5 +10,5 @@ interface BookshelfRepository {
     // Notes: List<Book>? NULLABLE
     suspend fun getBooks(query: String): List<Book>?
 
-    suspend fun getBook(id: String): Book?
+    suspend fun getBook(id: Int): Book?
 }

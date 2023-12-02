@@ -41,10 +41,10 @@ fun BookshelfNavHost(
             QueryScreen(
                 viewModel = viewModel,
                 retryAction = { viewModel.getBooks() },
-                onDetailsClick = {
-                    viewModel.selectedBookId = it.id
-                    navController.navigate(AppDestinations.Checkout.name)
-                },
+//                onDetailsClick = {
+//                    viewModel.selectedBookId = it.id
+//                    navController.navigate(AppDestinations.Checkout.name)
+//                },
             )
         }
 
@@ -56,14 +56,14 @@ fun BookshelfNavHost(
             )
         }
 
-        composable(route = AppDestinations.Details.name) {
-            val detailViewModel : DetailsViewModel = viewModel(factory = DetailsViewModel.Factory)
-            detailViewModel.getBook(viewModel.selectedBookId)
-
-            DetailScreen(
-                viewModel = detailViewModel,
-                retryAction = { detailViewModel.getBook(viewModel.selectedBookId) },
-            )
-        }
+//        composable(route = AppDestinations.Details.name) {
+//            val detailViewModel : DetailsViewModel = viewModel(factory = DetailsViewModel.Factory)
+//            detailViewModel.getBook(viewModel.selectedBookId)
+//
+//            DetailScreen(
+//                viewModel = detailViewModel,
+//                retryAction = { detailViewModel.getBook(viewModel.selectedBookId) },
+//            )
+//        }
     }
 }
