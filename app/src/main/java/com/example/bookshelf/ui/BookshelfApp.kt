@@ -1,5 +1,6 @@
 package com.example.bookshelf.ui
 
+import MyTopAppBar
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.*
@@ -14,7 +15,7 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.example.bookshelf.AppDestinations
 import com.example.bookshelf.BookshelfNavHost
-import com.example.bookshelf.ui.screens.components.MyTopAppBar
+//import com.example.bookshelf.ui.screens.components.MyTopAppBar
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -28,18 +29,17 @@ fun BookshelfApp(
 
     // Notes: Get the name of the current screen check for null
     val currentScreen = AppDestinations.valueOf(
-        backStackEntry?.destination?.route ?: AppDestinations.QueryScreen.name
+        backStackEntry?.destination?.route ?: AppDestinations.BeerSelection.name
     )
 
-    // Notes: Boolean to check if we can nagigate back. Check stack
+    // Notes: Boolean to check if we can navigate back. Check stack
     val canNavigateBack = navController.previousBackStackEntry != null
 
     Scaffold(
         topBar = {
             MyTopAppBar(
                 currentScreen = currentScreen,
-                canNavigateBack = canNavigateBack,
-                onNavigateUpClicked = { navController.navigateUp() }
+                //onTabSelected = canNavigateBack,
             )
         }
     ) {
