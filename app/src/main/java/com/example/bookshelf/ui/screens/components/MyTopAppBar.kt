@@ -26,14 +26,16 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.navigation.NavHostController
 import com.example.bookshelf.AppDestinations
 import com.example.bookshelf.R
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun MyTopAppBar(
+    navController: NavHostController,
     currentScreen: AppDestinations,
-    onTabSelected: (AppDestinations) -> Unit = {}
+
 ) {
     var selectedTab by remember { mutableStateOf(currentScreen) }
 
@@ -55,7 +57,7 @@ fun MyTopAppBar(
                 IconButton(
                     onClick = {
                         selectedTab = AppDestinations.MenuScreen
-                        onTabSelected(selectedTab)
+                        navController.navigate(selectedTab.name)
                     },
                     modifier = Modifier.weight(1f)
                 ) {
@@ -81,7 +83,7 @@ fun MyTopAppBar(
                 IconButton(
                     onClick = {
                         selectedTab = AppDestinations.BeerSelection
-                        onTabSelected(selectedTab)
+                        navController.navigate(selectedTab.name)
                     },
                     modifier = Modifier.weight(1f)
                 ) {
@@ -107,7 +109,7 @@ fun MyTopAppBar(
                 IconButton(
                     onClick = {
                         selectedTab = AppDestinations.Checkout
-                        onTabSelected(selectedTab)
+                        navController.navigate(selectedTab.name)
                     },
                     modifier = Modifier.weight(1f)
                 ) {

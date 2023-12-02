@@ -32,7 +32,7 @@ fun BookshelfNavHost(
                     navController.navigate(AppDestinations.BeerSelection.name)
                 },
                 onFavClick = {
-                    //navController.navigate(AppDestinations.Back.name)
+                    navController.navigate(AppDestinations.Checkout.name)
                 }
             )
         }
@@ -48,7 +48,7 @@ fun BookshelfNavHost(
             )
         }
 
-        composable(route = AppDestinations.MenuScreen.name) {
+        composable(route = AppDestinations.Checkout.name) {
             FavoritesScreen(
                 viewModel = viewModel,
                 retryAction = { viewModel.getBooks() },
@@ -56,7 +56,7 @@ fun BookshelfNavHost(
             )
         }
 
-        composable(route = AppDestinations.Checkout.name) {
+        composable(route = AppDestinations.Details.name) {
             val detailViewModel : DetailsViewModel = viewModel(factory = DetailsViewModel.Factory)
             detailViewModel.getBook(viewModel.selectedBookId)
 

@@ -110,18 +110,18 @@ fun MenuScreen(
                     .align(Alignment.CenterHorizontally),
                 contentScale = ContentScale.Fit
             )
-//            Spacer(modifier = Modifier.height(16.dp))
-//            Button(
-//                onClick = onSearchClick
-//            ) {
-//                Text(text = stringResource(R.string.btn_search))
-//            }
-//            Spacer(modifier = Modifier.height(16.dp))
-//            Button(
-//                onClick = onFavClick
-//            ) {
-//                Text(text = stringResource(R.string.btn_favorite))
-//            }
+            Spacer(modifier = Modifier.height(16.dp))
+            Button(
+                onClick = onSearchClick
+            ) {
+                Text(text = stringResource(R.string.btn_search))
+            }
+            Spacer(modifier = Modifier.height(16.dp))
+            Button(
+                onClick = onFavClick
+            ) {
+                Text(text = stringResource(R.string.btn_favorite))
+            }
 
 
             Spacer(modifier = Modifier.height(16.dp))

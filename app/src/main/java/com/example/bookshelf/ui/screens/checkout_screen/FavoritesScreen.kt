@@ -8,10 +8,13 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.tooling.preview.Preview
 import com.example.bookshelf.R
+import com.example.bookshelf.model.Book
 import com.example.bookshelf.ui.screens.components.ErrorScreen
 import com.example.bookshelf.ui.screens.components.LoadingScreen
 import com.example.bookshelf.ui.screens.beer_inventory_screen.*
+import com.example.bookshelf.ui.theme.BookshelfTheme
 
 @Composable
 fun FavoritesScreen(
@@ -41,3 +44,5 @@ fun FavoritesScreen(
         }
     }
 }
+
+

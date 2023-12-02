@@ -38,6 +38,7 @@ fun BookshelfApp(
     Scaffold(
         topBar = {
             MyTopAppBar(
+                navController = navController,
                 currentScreen = currentScreen,
                 //onTabSelected = canNavigateBack,
             )
