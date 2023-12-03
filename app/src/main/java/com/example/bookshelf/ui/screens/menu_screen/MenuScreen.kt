@@ -75,17 +75,35 @@ fun MenuScreen(
 
 ) {
 
+    // Add these lines at the beginning of your MenuScreen function
+    val isPhoneNumberClicked = remember { mutableStateOf(false) }
+    val isUrlClicked = remember { mutableStateOf(false) }
+val purple = Color(0xFF800080)
+
     val context = LocalContext.current
 
     val isError = remember { mutableStateOf(false) }
+
+    val phoneNumber = buildAnnotatedString {
+        withStyle(
+            style = SpanStyle(
+                textDecoration = TextDecoration.Underline,
+                color = if (isPhoneNumberClicked.value) purple else Color.Blue
+            )
+        ) {
+            append("(819) 848-8008")
+        }
+    }
+
+
     val annotatedLink = buildAnnotatedString {
         withStyle(
             style = SpanStyle(
                 textDecoration = TextDecoration.Underline,
-                color = Color.Blue
+                color = if (isUrlClicked.value) purple else Color.Blue
             )
         ) {
-            append("www.flyingspaghettimonster.com")
+            append("www.flyingspaghettimonster.org")
         }
     }
 
@@ -130,7 +148,7 @@ fun MenuScreen(
 
             Image(
                 painter = painterResource(id = R.drawable.fsm2),
-                contentDescription = "Your image description",
+                contentDescription = "Flying Spaghetti Baby Jesus Monster",
                 modifier = Modifier
                     .height(250.dp)
                     .fillMaxWidth()
@@ -169,7 +187,21 @@ fun MenuScreen(
                 Row {
                     Text("Phone:", fontSize = 22.sp)
                     Spacer(modifier = Modifier.weight(1f))
-                    Text("(819) 8481-8008", fontSize = 22.sp, textAlign = TextAlign.End)
+                    Text(
+                        text = phoneNumber,
+                        fontSize = 22.sp,
+                        textAlign = TextAlign.End,
+                        // Modify your clickable modifiers like this:
+                        modifier = Modifier.clickable {
+                            isPhoneNumberClicked.value = true
+                            val intent = Intent(
+                                Intent.ACTION_DIAL,
+                                Uri.parse("tel:(819) 848-8008")
+                            )
+                            val chooser = Intent.createChooser(intent, "Choose a Dialer")
+                            context.startActivity(chooser)
+                        }
+                    )
                 }
 
                 Spacer(modifier = Modifier.height(16.dp))
@@ -181,9 +213,10 @@ fun MenuScreen(
                         text = annotatedLink,
                         fontSize = 16.sp,
                         modifier = Modifier.clickable {
+                            isUrlClicked.value = true
                             val intent = Intent(
                                 Intent.ACTION_VIEW,
-                                Uri.parse("http://www.flyingspaghettimonster.com")
+                                Uri.parse("http://www.flyingspaghettimonster.org")
                             )
                             val chooser = Intent.createChooser(intent, "Choose a Browser")
                             context.startActivity(chooser)
@@ -229,7 +262,13 @@ fun MenuScreen(
                                         ) {
                                             super.onReceivedError(view, request, error)
                                             isError.value = true
-                                        }override fun onPageStarted(view: WebView?, url: String?, favicon: Bitmap?) {
+                                        }
+
+                                        override fun onPageStarted(
+                                            view: WebView?,
+                                            url: String?,
+                                            favicon: Bitmap?
+                                        ) {
                                             super.onPageStarted(view, url, favicon)
                                             isLoading = true
                                         }
@@ -250,7 +289,12 @@ fun MenuScreen(
                     }
                 }
                 if (isLoading) {
-                    Box(modifier = Modifier.fillMaxSize().background(Color.White), contentAlignment = Alignment.Center) {
+                    Box(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .background(Color.White),
+                        contentAlignment = Alignment.Center
+                    ) {
                         CircularProgressIndicator()
                     }
                 }
@@ -270,7 +314,7 @@ fun MenuScreen(
         ) {
             Icon(
                 imageVector = Icons.Default.Email,
-                contentDescription = "Your image description"
+                contentDescription = "Email Icon"
             )
         }
 
