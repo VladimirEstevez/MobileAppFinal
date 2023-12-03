@@ -25,6 +25,7 @@ import coil.request.ImageRequest
 import com.example.bookshelf.R
 import com.example.bookshelf.model.Book
 import com.example.bookshelf.ui.screens.components.NothingFoundScreen
+import kotlinx.coroutines.launch
 
 private const val TAG: String = "Lixo"
 
@@ -64,13 +65,24 @@ private fun GridItem(
     viewModel: QueryViewModel,
     book: Book,
     modifier: Modifier = Modifier,
+
 //    onDetailsClick: (Book) -> Unit,
 ) {
+
+      val coroutineScope = rememberCoroutineScope()
+ 
+
     var expanded by remember { mutableStateOf(false) }
     var favorite by remember { mutableStateOf(false) }
 
-    favorite = viewModel.isBookFavorite(book)
-    Log.d(TAG, viewModel.favoriteBooks.size.toString())
+      LaunchedEffect(book) {
+        coroutineScope.launch {
+            favorite = viewModel.isBookFavorite(book.id)
+        }
+    }
+
+    // favorite = viewModel.isBookFavorite(book)
+    // Log.d(TAG, viewModel.favoriteBooks.size.toString())
 
     Card(
 //        onClick = { onDetailsClick(book) },
@@ -112,17 +124,19 @@ private fun GridItem(
                 //  I am not sure how to get this done. To me it seems that
                 //  I would have to pass the book `onFavoriteClick(book)` up, and favorite state
                 //  would have to be created hight up too... just not sure how...
-                FavoriteButton(
-                    favorite = favorite,
-                    onFavoriteClick = {
-                        if (favorite) {
-                            viewModel.removeFavoriteBook(book)
-                        } else {
-                            viewModel.addFavoriteBook(book)
-                        }
-                        favorite = !favorite
-                    },
-                )
+              FavoriteButton(
+    favorite = favorite,
+    onFavoriteClick = {
+        coroutineScope.launch {
+            if (favorite) {
+                favorite = viewModel.removeFavoriteBook(book)
+            } else {
+                favorite = viewModel.addFavoriteBook(book)
+            }
+        }
+    },
+)
+
                 ExpandButton(
                     onClick = { expanded = !expanded },
                     expanded = expanded
@@ -137,6 +151,14 @@ private fun GridItem(
                         text = stringResource(R.string.book_title, book.name),
                         style = MaterialTheme.typography.bodyLarge
                     )
+                     Text(
+    text = stringResource(R.string.book_volume, book.volume.value.toString()),
+    style = MaterialTheme.typography.bodyMedium
+)
+Text(
+    text = stringResource(R.string.book_price, (book.volume.value * 5).toString()),
+    style = MaterialTheme.typography.bodyLarge
+)
 //                    Text(
 //                        text = stringResource(R.string.book_subtitle, book.volumeInfo.subtitle),
 //                        style = MaterialTheme.typography.bodyMedium

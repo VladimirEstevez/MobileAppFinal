@@ -22,7 +22,8 @@ interface BookshelfApiService {
      * HTTP method
      */
     @GET("beers")
-    suspend fun getBooks(@Query("beer_name") query: String): Response<List<Book>>
+    suspend fun getBooks(@Query("beer_name") query: String,
+                         @Query("per_page") perPage: Int = 25): Response<List<Book>>
 
     @GET("beers/{id}")
     suspend fun getBook(@Path("id") id: Int): Response<Book>

@@ -10,9 +10,11 @@
     <string name="search_placeholder">Search for …</string>
 
     <string name="book_title"><i>Title:</i> %s</string>
+    <string name="book_volume"><i>Volume:</i> %s</string>
+    <string name="book_price"><i>Price:</i> %s</string>
     <string name="book_subtitle"><u>Subtitle:</u> %s</string>
     <string name="book_authors"><b>Authors:</b> %s</string>
-    <string name="book_price"><b>Price:</b> %s</string>
+
 
     <string name="btn_search">Search Google Library</string>
     <string name="btn_favorite">My Favorite Books</string>

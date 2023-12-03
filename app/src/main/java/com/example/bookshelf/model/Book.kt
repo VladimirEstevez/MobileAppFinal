@@ -4,11 +4,13 @@ import kotlinx.serialization.Serializable
 
 @Serializable
 data class Book(
-   val id: Int,
+   val id: String,
     val name: String,
     val image_url: String,
-    val description: String
-) {
+    val description: String,
+   val price: Float,
+    val volume: Volume,
+)
     // Notes: This works too...
 //    fun getPrice() : String {
 //        if (saleInfo.listPrice == null) {
@@ -16,8 +18,12 @@ data class Book(
 //        }
 //        return "${saleInfo.listPrice.amount} ${saleInfo.listPrice.currency}"
 //    }
+@Serializable
+data class Volume(
+    val value: Float,
+    val unit: String
+)
 
-}
 
 @Serializable
 data class VolumeInfo(

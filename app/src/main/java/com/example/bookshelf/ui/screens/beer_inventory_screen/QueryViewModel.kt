@@ -10,17 +10,24 @@ import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewmodel.viewModelFactory
 import com.example.bookshelf.BookshelfApplication
 import com.example.bookshelf.data.BookshelfRepository
+
+import com.example.bookshelf.data.db.dao.BookDao
+import com.example.bookshelf.data.db.entities.BookEntity
 import com.example.bookshelf.model.Book
+import com.example.bookshelf.model.Volume
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import retrofit2.HttpException
 import java.io.IOException
 
 class QueryViewModel(
-    private val bookshelfRepository: BookshelfRepository
-): ViewModel() {
+    private val bookshelfRepository: BookshelfRepository,
+    private val bookDao: BookDao
+) : ViewModel() {
     private val _uiState = MutableStateFlow<QueryUiState>(QueryUiState.Loading)
     val uiState = _uiState.asStateFlow()
 
@@ -42,35 +49,76 @@ class QueryViewModel(
         private set
 
 
-    fun isBookFavorite(book: Book): Boolean {
-        return !favoriteBooks.filter { x -> x.id == book.id }.isEmpty()
-    }
+    // fun isBookFavorite(book: Book): Boolean {
+    //     return !favoriteBooks.filter { x -> x.id == book.id }.isEmpty()
+    // }
 
 
-    fun addFavoriteBook(book: Book) {
-        if (!isBookFavorite(book)) {
-            favoriteBooks.add(book)
-            favoritesUpdated()
+    // fun addFavoriteBook(book: Book) {
+    //     if (!isBookFavorite(book)) {
+    //         favoriteBooks.add(book)
+    //         favoritesUpdated()
+    //     }
+    // }
+
+    // fun removeFavoriteBook(book: Book) {
+    //     favoriteBooks.removeIf { it.id == book.id }
+    //     favoritesUpdated()
+    // }
+
+
+    // private fun favoritesUpdated() {
+    //     viewModelScope.launch {
+    //         favoritesfUiState = QueryUiState.Loading
+    //         favoritesfUiState = QueryUiState.Success(favoriteBooks)
+    //     }
+    // }
+    // // Logic for Favorite books -- End
+
+
+    suspend fun isBookFavorite(bookId: String): Boolean {
+        return withContext(Dispatchers.IO) {
+            bookDao.getBookById(bookId) != null
         }
     }
 
-    fun removeFavoriteBook(book: Book) {
-        favoriteBooks.removeIf { it.id == book.id }
-        favoritesUpdated()
+    suspend fun addFavoriteBook(book: Book): Boolean {
+        return withContext(Dispatchers.IO) {
+            val price = book.volume.value * 5
+            val bookEntity = BookEntity(book.id, book.name, book.description, price, book.volume.value)
+            bookDao.insert(bookEntity)
+            favoritesUpdated()
+            true
+        }
     }
 
+    suspend fun removeFavoriteBook(book: Book): Boolean {
+        return withContext(Dispatchers.IO) {
+            val bookEntity = bookDao.getBookById(book.id)
+            if (bookEntity != null) {
+                bookDao.delete(bookEntity)
+                favoritesUpdated()
+                true
+            } else {
+                false
+            }
+        }
+    }
 
     private fun favoritesUpdated() {
-        viewModelScope.launch {
+        viewModelScope.launch(Dispatchers.IO) {
             favoritesfUiState = QueryUiState.Loading
-            favoritesfUiState = QueryUiState.Success(favoriteBooks)
-
+            val favoriteBooksEntities = bookDao.getAll()
+            val favoriteBooks = favoriteBooksEntities.map {
+                Book(it.id, it.name, "", it.description, it.price, Volume(it.volume, "liters"))
+            }
+            withContext(Dispatchers.Main) {
+                favoritesfUiState = QueryUiState.Success(favoriteBooks)
+            }
         }
     }
-    // Logic for Favorite books -- End
 
-
-    fun updateQuery(query: String){
+    fun updateQuery(query: String) {
         _uiStateSearch.update { currentState ->
             currentState.copy(
                 query = query
@@ -78,7 +126,7 @@ class QueryViewModel(
         }
     }
 
-    fun updateSearchStarted(searchStarted: Boolean){
+    fun updateSearchStarted(searchStarted: Boolean) {
         _uiStateSearch.update { currentState ->
             currentState.copy(
                 searchStarted = searchStarted
@@ -96,9 +144,9 @@ class QueryViewModel(
                 val books = bookshelfRepository.getBooks(query)
                 if (books == null) {
                     QueryUiState.Error
-                } else if (books.isEmpty()){
+                } else if (books.isEmpty()) {
                     QueryUiState.Success(emptyList())
-                } else{
+                } else {
                     QueryUiState.Success(books)
                 }
             } catch (e: IOException) {
@@ -122,7 +170,8 @@ class QueryViewModel(
                 val application =
                     (this[ViewModelProvider.AndroidViewModelFactory.APPLICATION_KEY] as BookshelfApplication)
                 val bookshelfRepository = application.container.bookshelfRepository
-                QueryViewModel(bookshelfRepository = bookshelfRepository)
+                val bookDao = application.container.appDatabase.bookDao()
+                QueryViewModel(bookshelfRepository = bookshelfRepository, bookDao = bookDao)
             }
         }
     }

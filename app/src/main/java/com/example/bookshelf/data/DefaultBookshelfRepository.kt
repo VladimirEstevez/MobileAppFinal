@@ -18,8 +18,7 @@ class DefaultBookshelfRepository(
             val res = bookshelfApiService.getBooks(formattedQuery)
             Log.d("API_RESPONSE", "API response: ${res.body()}")
             if (res.isSuccessful) {
-                res.body()?.filter {   it.name.contains(query, ignoreCase = true) ||
-                        it.description.contains(query, ignoreCase = true) } ?: emptyList()
+                res.body() ?: emptyList()
             } else {
                 emptyList()
             }

@@ -1,7 +1,12 @@
 package com.example.bookshelf.di
 
+import android.content.Context
+import androidx.room.Room
 import com.example.bookshelf.data.BookshelfRepository
 import com.example.bookshelf.data.DefaultBookshelfRepository
+import com.example.bookshelf.data.db.AppDatabase
+
+import com.example.bookshelf.data.db.dao.BookDao
 import com.example.bookshelf.network.BookshelfApiService
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
@@ -9,11 +14,23 @@ import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import retrofit2.create
 
-class DefaultAppContainer : AppContainer {
+class DefaultAppContainer(private val context: Context) : AppContainer {
 //    private val json = Json {
 //        ignoreUnknownKeys = true
 //        explicitNulls = false
 //    }
+
+ override val appDatabase: AppDatabase by lazy {
+        Room.databaseBuilder(
+            context,
+            AppDatabase::class.java, "AppDatabase"
+        ).fallbackToDestructiveMigration().build()
+    }
+
+     override val bookDao: BookDao by lazy {
+        appDatabase.bookDao()
+    }
+
 private val logging = HttpLoggingInterceptor().apply { level = HttpLoggingInterceptor.Level.BODY }
 
     private val client = OkHttpClient.Builder()
