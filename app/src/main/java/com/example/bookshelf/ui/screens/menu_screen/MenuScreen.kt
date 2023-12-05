@@ -47,10 +47,12 @@ import androidx.compose.ui.text.googlefonts.GoogleFont
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.withStyle
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.viewinterop.AndroidView
 import com.example.bookshelf.R
+import com.example.bookshelf.ui.theme.BookshelfTheme
 import kotlinx.coroutines.delay
 
 @OptIn(ExperimentalTextApi::class)

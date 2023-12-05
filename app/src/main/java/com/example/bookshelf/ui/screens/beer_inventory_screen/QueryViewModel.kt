@@ -105,6 +105,23 @@ class QueryViewModel(
         }
     }
 
+    suspend fun getBeers(query: String = ""): List<Book> {
+        updateSearchStarted(true)
+        return try {
+            // Notes: List<BookEntity>
+            bookshelfRepository.getBooks(query) ?: emptyList()
+        } catch (e: IOException) {
+            // Handle IOException
+            emptyList()
+        } catch (e: HttpException) {
+            // Handle HttpException
+            emptyList()
+        } finally {
+            // You can perform any cleanup or finalization here
+            updateSearchStarted(false)
+        }
+    }
+
     private fun favoritesUpdated() {
         viewModelScope.launch(Dispatchers.IO) {
             favoritesfUiState = QueryUiState.Loading

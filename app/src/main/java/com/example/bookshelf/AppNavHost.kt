@@ -51,8 +51,8 @@ fun BookshelfNavHost(
         composable(route = AppDestinations.Checkout.name) {
             FavoritesScreen(
                 viewModel = viewModel,
-                retryAction = { viewModel.getBooks() },
-                bookshelfUiState = viewModel.favoritesfUiState
+//                retryAction = { viewModel.getBooks() },
+//                bookshelfUiState = viewModel.favoritesfUiState
             )
         }
 
