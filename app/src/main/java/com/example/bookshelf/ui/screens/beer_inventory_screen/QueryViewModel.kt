@@ -17,6 +17,7 @@ import com.example.bookshelf.model.Book
 import com.example.bookshelf.model.Volume
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
@@ -48,6 +49,9 @@ class QueryViewModel(
     var favoritesfUiState: QueryUiState by mutableStateOf(QueryUiState.Loading)
         private set
 
+
+private val _books = MutableStateFlow<List<BookEntity>>(emptyList())
+val books: StateFlow<List<BookEntity>> = _books.asStateFlow()
 
     // fun isBookFavorite(book: Book): Boolean {
     //     return !favoriteBooks.filter { x -> x.id == book.id }.isEmpty()
@@ -105,22 +109,22 @@ class QueryViewModel(
         }
     }
 
-    suspend fun getBeers(query: String = ""): List<Book> {
+fun getBeers() {
+    viewModelScope.launch(Dispatchers.IO) {
         updateSearchStarted(true)
-        return try {
-            // Notes: List<BookEntity>
-            bookshelfRepository.getBooks(query) ?: emptyList()
+        try {
+            _books.value = bookDao.getAll()
         } catch (e: IOException) {
             // Handle IOException
-            emptyList()
         } catch (e: HttpException) {
             // Handle HttpException
-            emptyList()
         } finally {
-            // You can perform any cleanup or finalization here
-            updateSearchStarted(false)
+            withContext(Dispatchers.Main) {
+                updateSearchStarted(false)
+            }
         }
     }
+}
 
     private fun favoritesUpdated() {
         viewModelScope.launch(Dispatchers.IO) {
