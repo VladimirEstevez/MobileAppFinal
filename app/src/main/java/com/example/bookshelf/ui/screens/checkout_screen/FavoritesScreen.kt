@@ -41,6 +41,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.bookshelf.R
+import com.example.bookshelf.data.db.entities.BookEntity
 import com.example.bookshelf.model.Book
 import com.example.bookshelf.ui.screens.beer_inventory_screen.*
 import com.example.bookshelf.ui.theme.BookshelfTheme
@@ -65,10 +66,7 @@ fun FavoritesScreen(
         viewModel.getBeers()
     }
 
-    val books = when (val currentState = uiState) {
-        is QueryUiState.Success -> currentState.bookshelfList
-        else -> emptyList() // or handle other states if needed
-    }
+    val books by viewModel.books.collectAsState()
 
     Column {
         
@@ -94,10 +92,10 @@ fun FavoritesScreen(
             Text("Select a date")
         }
         LazyColumn(contentPadding = PaddingValues(vertical = 8.dp)) {
-            items(books.size) { book ->
-                FavoritesCard(books[book])
-            }
-        }
+    items(books.size) { index ->
+        FavoritesCard(books[index])
+    }
+}
     }
 
         LaunchedEffect(datePickerState.selectedDateMillis) {
@@ -109,7 +107,7 @@ fun FavoritesScreen(
 
 
 @Composable
-fun FavoritesCard(item: Book) {
+fun FavoritesCard(item: BookEntity) {
     // Your existing card composable, modified to use data from the item
     Surface(
         modifier = Modifier
@@ -123,17 +121,17 @@ fun FavoritesCard(item: Book) {
                 .fillMaxSize()
                 .background(MaterialTheme.colorScheme.background)
         ) {
-            // Image
-            Image(
-                painter = painterResource(id = R.drawable.fsm),//item.imageRes),
-                contentDescription = null,
-                modifier = Modifier
-                    .size(80.dp)
-                    .clip(CircleShape)
-                    .padding(8.dp)
-                    .align(Alignment.CenterVertically),
-                contentScale = ContentScale.Crop
-            )
+            // // Image
+            // Image(
+            //     painter = painterResource(id = R.drawable.fsm),//item.imageRes),
+            //     contentDescription = null,
+            //     modifier = Modifier
+            //         .size(80.dp)
+            //         .clip(CircleShape)
+            //         .padding(8.dp)
+            //         .align(Alignment.CenterVertically),
+            //     contentScale = ContentScale.Crop
+            // )
 
             Spacer(modifier = Modifier.weight(1f))
 
@@ -153,7 +151,7 @@ fun FavoritesCard(item: Book) {
 
                 // Details label
                 Text(
-                    text = (5*item.volume.value).toString(),
+                    text = (item.price).toString(),
                     modifier = Modifier.weight(1f)
                 )
             }
