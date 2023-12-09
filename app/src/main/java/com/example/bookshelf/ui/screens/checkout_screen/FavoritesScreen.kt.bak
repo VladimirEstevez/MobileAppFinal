@@ -38,6 +38,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.bookshelf.R
+import com.example.bookshelf.data.db.entities.BookEntity
 import com.example.bookshelf.model.Book
 import com.example.bookshelf.ui.screens.beer_inventory_screen.*
 import com.example.bookshelf.ui.theme.BookshelfTheme
@@ -56,11 +57,39 @@ fun FavoritesScreen(
         viewModel.getBeers()
     }
 
-    val books = when (val currentState = uiState) {
-        is QueryUiState.Success -> currentState.bookshelfList
-        else -> emptyList() // or handle other states if needed
-    }
+    val books by viewModel.books.collectAsState()
 
+<<<<<<< HEAD
+    Column {
+        
+        if (isDatePickerDialogOpen) {
+            Dialog(onDismissRequest = { isDatePickerDialogOpen = false }) {
+                Column {
+            DatePicker(
+                datePickerState = datePickerState,
+                modifier = Modifier.fillMaxWidth(),
+                dateFormatter = remember { DatePickerFormatter() },
+                dateValidator = { true }, // Your custom date validation logic here
+                title = { Text(text = "Select a pick-up date:") },
+                headline = { }, // Your custom headline composable
+                colors = DatePickerDefaults.colors()
+            )
+            Button(onClick = { isDatePickerDialogOpen = false }) {
+                Text("Confirm Date")
+            }
+        }
+            }
+        }else {
+            Button(onClick = { isDatePickerDialogOpen = !isDatePickerDialogOpen}) {
+            Text("Select a date")
+        }
+        LazyColumn(contentPadding = PaddingValues(vertical = 8.dp)) {
+    items(books.size) { index ->
+        FavoritesCard(books[index])
+    }
+}
+    }
+=======
     Box( modifier = Modifier
         .fillMaxSize()
     ) {
@@ -85,6 +114,7 @@ fun FavoritesScreen(
                     }
                 }
             }
+>>>>>>> 9f09f2275d1f283a9c1ab17b8dda20842ea258a2
 
         }
     }
@@ -115,6 +145,9 @@ fun EmailInput(email: String, setEmail: (String) -> Unit) {
 }
 
 @Composable
+<<<<<<< HEAD
+fun FavoritesCard(item: BookEntity) {
+=======
 fun OrderId() {
     Row(
         modifier = Modifier
@@ -157,6 +190,7 @@ fun OrderTotal() {
 }
 @Composable
 fun FavoritesCard(item: Book) {
+>>>>>>> 9f09f2275d1f283a9c1ab17b8dda20842ea258a2
     // Your existing card composable, modified to use data from the item
     Surface(
         modifier = Modifier
@@ -169,6 +203,19 @@ fun FavoritesCard(item: Book) {
             modifier = Modifier
                 .background(MaterialTheme.colorScheme.background)
         ) {
+<<<<<<< HEAD
+            // // Image
+            // Image(
+            //     painter = painterResource(id = R.drawable.fsm),//item.imageRes),
+            //     contentDescription = null,
+            //     modifier = Modifier
+            //         .size(80.dp)
+            //         .clip(CircleShape)
+            //         .padding(8.dp)
+            //         .align(Alignment.CenterVertically),
+            //     contentScale = ContentScale.Crop
+            // )
+=======
             // Image
             Image(
                 painter = painterResource(id = R.drawable.fsm),//item.imageRes),
@@ -180,6 +227,7 @@ fun FavoritesCard(item: Book) {
                     .align(Alignment.CenterVertically),
                 contentScale = ContentScale.Crop
             )
+>>>>>>> 9f09f2275d1f283a9c1ab17b8dda20842ea258a2
 
             Spacer(modifier = Modifier.weight(1f))
 
@@ -199,7 +247,7 @@ fun FavoritesCard(item: Book) {
 
                 // Details label
                 Text(
-                    text = (5*item.volume.value).toString(),
+                    text = (item.price).toString(),
                     modifier = Modifier.weight(1f)
                 )
             }
