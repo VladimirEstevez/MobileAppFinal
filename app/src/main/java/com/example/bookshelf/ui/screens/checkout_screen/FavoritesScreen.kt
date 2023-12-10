@@ -1,11 +1,9 @@
 package com.example.bookshelf.ui.screens.checkout_screen
 
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -13,16 +11,22 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Email
 import androidx.compose.material3.Button
 import androidx.compose.material3.DatePicker
 import androidx.compose.material3.DatePickerDefaults
 import androidx.compose.material3.DatePickerFormatter
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
+import androidx.compose.material3.LocalTextStyle
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextField
 import androidx.compose.material3.rememberDatePickerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -33,19 +37,17 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
-import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.text.input.KeyboardCapitalization
+import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.input.VisualTransformation
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
-import androidx.lifecycle.viewmodel.compose.viewModel
-import com.example.bookshelf.R
 import com.example.bookshelf.data.db.entities.BookEntity
-import com.example.bookshelf.model.Book
 import com.example.bookshelf.ui.screens.beer_inventory_screen.*
-import com.example.bookshelf.ui.theme.BookshelfTheme
 import java.time.Instant
 import java.time.LocalDate
 import java.time.ZoneId
@@ -58,7 +60,8 @@ fun FavoritesScreen(
 ) {
     val uiState by viewModel.uiState.collectAsState(initial = QueryUiState.Loading)
     val (email, setEmail) = remember { mutableStateOf("") }
-    var selectedDate by remember { mutableStateOf(LocalDate.now()) }
+    val minDaysFromNow = 3
+    var selectedDate by remember { mutableStateOf(LocalDate.now().plusDays(minDaysFromNow.toLong())) }
     val datePickerState = rememberDatePickerState( initialSelectedDateMillis = Instant.now().toEpochMilli() )
     var isDatePickerDialogOpen by remember { mutableStateOf(false) }
 
@@ -67,6 +70,8 @@ fun FavoritesScreen(
     }
 
     val books by viewModel.books.collectAsState()
+    val orderTotal = books.sumOf { it.price.toDouble() }
+    val orderId = 0
 
     Column {
         if (isDatePickerDialogOpen) {
@@ -74,43 +79,94 @@ fun FavoritesScreen(
                 Column {
                     DatePicker(
                         datePickerState = datePickerState,
-                        modifier = Modifier.fillMaxWidth(),
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(top = 10.dp),
                         dateFormatter = remember { DatePickerFormatter() },
-                        dateValidator = { true }, // Your custom date validation logic here
+                        dateValidator = { selectedDate ->
+                            // Calculate the minimum allowed date
+                            val minDate = LocalDate.now().plusDays(minDaysFromNow.toLong())
+                            val minDateMillis: Long = minDate.atStartOfDay(ZoneId.systemDefault()).toInstant().toEpochMilli()
+
+                            // Check if the selected date is equal to or after the minimum allowed date
+                            selectedDate >= minDateMillis
+                        },
                         title = { Text(text = "Select a pick-up date:") },
                         headline = { }, // Your custom headline composable
                         colors = DatePickerDefaults.colors()
                     )
-                    Button(onClick = { isDatePickerDialogOpen = false }) {
+                    Button(
+                        onClick = { isDatePickerDialogOpen = false },
+                        modifier = Modifier.height(40.dp),
+                        shape = RoundedCornerShape(5.dp),
+                        contentPadding = PaddingValues(5.dp),
+                    ) {
                         Text("Confirm Date")
                     }
                 }
             }
         }else {
-            OrderTotal()
-            OrderId()
+            OrderTotal(orderTotal)
+            OrderId(orderId)
             EmailInput(email, setEmail)
-            Row(){
-                Button(onClick = { isDatePickerDialogOpen = !isDatePickerDialogOpen}) {
+
+            Row(
+                modifier = Modifier
+                    .background(MaterialTheme.colorScheme.background)
+                    .padding(bottom = 10.dp, start = 10.dp, end = 10.dp),
+                verticalAlignment = Alignment.CenterVertically
+            ){
+                Text(
+                    text = "Pick up date: $selectedDate",
+                    textAlign = TextAlign.Start,
+                    modifier = Modifier
+                        .weight(1f)
+                )
+                Button(
+                    onClick = { isDatePickerDialogOpen = !isDatePickerDialogOpen},
+                    modifier = Modifier.height(40.dp),
+                    shape = RoundedCornerShape(5.dp),
+                    contentPadding = PaddingValues(5.dp),
+                ) {
                     Text("Select a date")
                 }
-                Text(text = selectedDate.toString())
             }
-
-            Button(onClick = {  }) {
-                Text("Submit Order!")
+            Row(
+                modifier = Modifier
+                    .background(MaterialTheme.colorScheme.background)
+                    .padding(bottom = 10.dp, start = 10.dp, end = 10.dp),
+                verticalAlignment = Alignment.CenterVertically
+            ){
+                Button(
+                    onClick = { /*TODO*/ },
+                    modifier = Modifier
+                        .height(40.dp)
+                        .fillMaxWidth(),
+                    shape = RoundedCornerShape(10.dp),
+                    contentPadding = PaddingValues(5.dp),
+                ) {
+                    Text("Submit Order!")
+                }
             }
-            Text(text = "Order Summary")
+            Text(
+                text = "Order Summary",
+                modifier = Modifier.padding(bottom = 10.dp, start = 10.dp, end = 10.dp)
+            )
             LazyColumn(contentPadding = PaddingValues(vertical = 8.dp, horizontal = 8.dp)) {
                 items(books.size) { index ->
-                    FavoritesCard(books[index])
+                    FavoritesCard(books[index], viewModel)
                 }
             }
         }
 
         LaunchedEffect(datePickerState.selectedDateMillis) {
             val dateMillis = datePickerState.selectedDateMillis ?: return@LaunchedEffect
-            selectedDate = Instant.ofEpochMilli(dateMillis).atZone(ZoneId.systemDefault()).toLocalDate()
+
+            val timeZone = ZoneId.systemDefault()
+
+            selectedDate = Instant.ofEpochMilli(dateMillis)
+                .atZone(timeZone)
+                .toLocalDate()
         }
     }
 }
@@ -118,118 +174,143 @@ fun FavoritesScreen(
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun EmailInput(email: String, setEmail: (String) -> Unit) {
+
     Row(
         modifier = Modifier
-            .background(MaterialTheme.colorScheme.background),
+            .background(MaterialTheme.colorScheme.background)
+            .padding(bottom = 10.dp, start = 10.dp, end = 10.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
         Text(
-            text = "Email",
+            text = "Enter email: ",
             modifier = Modifier
                 .weight(1f)
-                .padding(bottom = 10.dp, start = 10.dp)
+
         )
         OutlinedTextField(
             value = email,
             onValueChange = { newEmail -> setEmail(newEmail) },
-            placeholder = { Text("Enter your email") },
-            //textStyle = androidx.compose.ui.text.TextStyle(fontSize = .sp),
+            placeholder = { Text("youremail@gmail.com") },
+            keyboardOptions = KeyboardOptions.Default.copy(
+                keyboardType = KeyboardType.Email,
+                capitalization = KeyboardCapitalization.None
+            ),
+            leadingIcon = { Icon(imageVector = Icons.Default.Email, contentDescription = "emailIcon") },
+            singleLine = true,
             modifier = Modifier
-                .width(230.dp)
+                .weight(2f)
                 .height(60.dp)
         )
     }
 }
 
 @Composable
-fun OrderId() {
+fun OrderId(orderId: Int) {
     Row(
         modifier = Modifier
             .background(MaterialTheme.colorScheme.background)
+            .padding(bottom = 10.dp, start = 10.dp, end = 10.dp)
     ) {
         Text(
-            text = "Order ID",
+            text = "Order ID: ",
             modifier = Modifier
                 .weight(1f)
-                .padding(bottom = 10.dp, start = 10.dp)
         )
 
-        // Details label
         Text(
-            text = "1",
-            modifier = Modifier.weight(1f)
+            text = orderId.toString(),
+            textAlign = TextAlign.End,
+            modifier = Modifier
+                .weight(1f)
         )
     }
 }
 
 @Composable
-fun OrderTotal() {
+fun OrderTotal(total: Double) {
     Row(
         modifier = Modifier
             .background(MaterialTheme.colorScheme.background)
+            .padding(bottom = 10.dp, start = 10.dp, end = 10.dp)
     ){
         Text(
-            text = "Total Amount",
+            text = "Total Amount: ",
             modifier = Modifier
-                .weight(1f)
-                .padding(bottom = 10.dp, start = 10.dp)
+                .weight(2f)
         )
 
-        // Details label
         Text(
-            text = "9001",
-            modifier = Modifier.weight(1f)
+            text = "$total $",
+            textAlign = TextAlign.End,
+            modifier = Modifier
+                .weight(1f)
         )
     }
 }
+
 @Composable
-fun FavoritesCard(item: BookEntity) {
+fun FavoritesCard(item: BookEntity, viewModel: QueryViewModel) {
+    var buttonClicked by remember { mutableStateOf(false) }
     // Your existing card composable, modified to use data from the item
     Surface(
         modifier = Modifier
             .fillMaxWidth()
-            .height(60.dp)
+            .height(70.dp)
             .shadow(4.dp),
-        shape = MaterialTheme.shapes.medium,
     ) {
         Row(
             modifier = Modifier
                 .background(MaterialTheme.colorScheme.background)
+                .fillMaxWidth(),
+            verticalAlignment = Alignment.CenterVertically
         ) {
-            // Labels
+            // Start-aligned column
             Column(
                 modifier = Modifier
-                    .padding(start = 16.dp)
-                    .fillMaxHeight(),
+                    .padding(start = 16.dp, bottom = 10.dp, top = 10.dp)
+                    .weight(2f), // Occupy 1/3 of the available space
             ) {
                 // Name label
                 Text(
                     text = item.name,
-                    modifier = Modifier
-                        .weight(1f)
-                        .padding(bottom = 4.dp)
+                    modifier = Modifier.padding(bottom = 4.dp)
                 )
 
-                // Details label
                 Text(
-                    text = (5*item.price).toString(),
-                    modifier = Modifier.weight(1f)
+                    text = "ID: " + item.id,
                 )
+            }
+
+            // End-aligned column
+            Column(
+                horizontalAlignment = Alignment.End,
+                modifier = Modifier
+                    .weight(1f)
+                    .padding(end = 16.dp, bottom = 10.dp, top = 10.dp), // Occupy 2/3 of the available space
+            ) {
+                Text(
+                    text = item.price.toString() + " $",
+                )
+
+                Button(
+                    onClick = { buttonClicked = true },
+                    modifier = Modifier.height(40.dp),
+                    shape = RoundedCornerShape(5.dp),
+                    contentPadding = PaddingValues(5.dp),
+                ) {
+                    Text(
+                        text = "Remove",
+                    )
+                }
             }
         }
     }
-}
-@Composable
-fun DatePicker(){
+
+    LaunchedEffect(buttonClicked) {
+        if (buttonClicked) {
+            //viewModel.removeFavoriteBook(item)
+            buttonClicked = false // Reset the state
+        }
+    }
 
 }
-//@Preview(showSystemUi = true)
-//@Composable
-//fun MenuScreenPreview() {
-//    val viewModel : QueryViewModel = viewModel(factory = QueryViewModel.Factory)
-//    BookshelfTheme {
-//        FavoritesScreen(viewModel)
-//    }
-//}
-
-
