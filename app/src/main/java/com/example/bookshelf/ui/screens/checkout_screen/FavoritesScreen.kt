@@ -286,7 +286,6 @@ fun FavoritesCard(item: BookEntity, viewModel: QueryViewModel) {
     Surface(
         modifier = Modifier
             .fillMaxWidth()
-            .height(70.dp)
             .shadow(4.dp),
     ) {
         Row(
@@ -326,6 +325,9 @@ fun FavoritesCard(item: BookEntity, viewModel: QueryViewModel) {
             ) {
                 Text(
                     text = "Price: " + item.price.toString() + " $",
+                    modifier = Modifier.padding(bottom = 4.dp),
+                    fontSize = 12.sp,
+                    fontWeight = FontWeight.Bold,
                 )
 
                 Button(
