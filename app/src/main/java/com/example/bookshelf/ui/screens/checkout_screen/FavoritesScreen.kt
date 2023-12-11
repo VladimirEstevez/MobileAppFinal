@@ -35,6 +35,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.semantics.SemanticsProperties.Selected
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.VisualTransformation
@@ -61,7 +62,6 @@ fun FavoritesScreen(
     val minDaysFromNow = 3
     var selectedDate by remember { mutableStateOf(LocalDate.now())
 }
-    Log.d("DatePicker", "Selected date: $selectedDate")
     val datePickerState = rememberDatePickerState(
     initialSelectedDateMillis = LocalDate.now().atStartOfDay(ZoneId.of("America/New_York")).toInstant().toEpochMilli()
 )
@@ -80,7 +80,6 @@ fun FavoritesScreen(
             selectedDate = LocalDate.now().plusDays(1 + minDaysFromNow.toLong())
         }
 
-        Log.d("DatePicker", "Date millis: $dateMillis, Selected date: $selectedDate")
     }
 
     val books by viewModel.books.collectAsState()
@@ -106,11 +105,15 @@ fun FavoritesScreen(
 
                             // Check if the selected date is equal to or after the minimum allowed date
                             val isValid = selectedDate >= minDateMillis
-                            Log.d("DatePicker", "Selected date: $selectedDate, Min date: $minDateMillis, Is valid: $isValid")
 
                             isValid
                         },
-                        title = { Text(text = "Select a pick-up date:") },
+                        title = { Text(
+                            text = "Select a Pick-Up Date",
+                            fontSize = 24.sp,
+                            fontWeight = FontWeight.Bold,
+                            modifier = Modifier.align(Alignment.CenterHorizontally)
+                        ) },
                         headline = { }, // Your custom headline composable
                         colors = DatePickerDefaults.colors()
                     )
@@ -125,8 +128,13 @@ fun FavoritesScreen(
                 }
             }
         } else {
-            OrderTotal(orderTotal)
-            //OrderId(orderId)
+            Text(
+                text = "Ready to Checkout?",
+                fontSize = 24.sp,
+                fontWeight = FontWeight.Bold,
+                modifier = Modifier.align(Alignment.CenterHorizontally).padding(bottom = 20.dp)
+
+            )
             EmailInput(email, setEmail)
 
             Row(
@@ -150,6 +158,9 @@ fun FavoritesScreen(
                     Text("Select a date")
                 }
             }
+
+            OrderTotal(orderTotal)
+
             Row(
                 modifier = Modifier
                     .background(MaterialTheme.colorScheme.background)
@@ -252,6 +263,8 @@ fun OrderTotal(total: Double) {
     ) {
         Text(
             text = "Total Amount: ",
+            fontWeight = FontWeight.Bold,
+            fontSize = 18.sp,
             modifier = Modifier
                 .weight(2f)
         )
@@ -259,6 +272,8 @@ fun OrderTotal(total: Double) {
         Text(
             text = "$total $",
             textAlign = TextAlign.End,
+            fontWeight = FontWeight.Bold,
+            fontSize = 18.sp,
             modifier = Modifier
                 .weight(1f)
         )
@@ -329,7 +344,7 @@ fun FavoritesCard(item: BookEntity, viewModel: QueryViewModel) {
 
     LaunchedEffect(buttonClicked) {
         if (buttonClicked) {
-            //viewModel.bookDao.delete(item)
+            viewModel.removeFromCart(item)
             buttonClicked = false // Reset the state
         }
     }

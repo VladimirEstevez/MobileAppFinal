@@ -158,20 +158,13 @@ class QueryViewModel(
 
     fun submitOrder(newOrder: OrderEntity) {
         viewModelScope.launch {
-            try {
-                // Insert the new OrderEntity into the ordersDao or a similar table
-                insertOrder(newOrder)
+            insertOrder(newOrder)
+        }
+    }
 
-                // Optional: Clear the selected books or perform any other necessary actions
-                // viewModelScope.launch {
-                //     _books.emit(emptyList())
-                // }
-
-            } catch (e: IOException) {
-                // Handle IOException
-            } catch (e: HttpException) {
-                // Handle HttpException
-            }
+    fun removeFromCart(book: BookEntity) {
+        viewModelScope.launch {
+            deleteBook(book)
         }
     }
 
@@ -180,6 +173,12 @@ class QueryViewModel(
             orderDao.insert(order)
             bookDao.clearAll()
             _books.value = emptyList()
+        }
+    }
+    private suspend fun deleteBook(book: BookEntity) {
+        withContext(Dispatchers.IO) {
+            bookDao.delete(book)
+            _books.value = bookDao.getAll()
         }
     }
 
