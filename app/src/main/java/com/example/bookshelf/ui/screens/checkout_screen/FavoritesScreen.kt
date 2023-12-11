@@ -289,7 +289,7 @@ fun FavoritesCard(item: BookEntity, viewModel: QueryViewModel) {
                     .padding(end = 16.dp, bottom = 10.dp, top = 10.dp), // Occupy 2/3 of the available space
             ) {
                 Text(
-                    text = item.price.toString() + " $",
+                    text = "Price: " + item.price.toString() + " $",
                 )
 
                 Button(
