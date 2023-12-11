@@ -1,5 +1,6 @@
 package com.example.bookshelf.ui.screens.checkout_screen
 
+import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -61,13 +62,27 @@ fun FavoritesScreen(
     val uiState by viewModel.uiState.collectAsState(initial = QueryUiState.Loading)
     val (email, setEmail) = remember { mutableStateOf("") }
     val minDaysFromNow = 3
-    var selectedDate by remember { mutableStateOf(LocalDate.now().plusDays(minDaysFromNow.toLong())) }
-    val datePickerState = rememberDatePickerState( initialSelectedDateMillis = Instant.now().toEpochMilli() )
+  var selectedDate by remember {
+    mutableStateOf(
+        LocalDate.now().plusDays(minDaysFromNow.toLong())
+    )
+}
+    val datePickerState = rememberDatePickerState(
+    initialSelectedDateMillis = LocalDate.now().atStartOfDay(ZoneId.of("America/New_York")).toInstant().toEpochMilli()
+)
     var isDatePickerDialogOpen by remember { mutableStateOf(false) }
 
     LaunchedEffect(viewModel) {
         viewModel.getBeers()
     }
+
+    LaunchedEffect(datePickerState.selectedDateMillis) {
+            val dateMillis = datePickerState.selectedDateMillis ?: return@LaunchedEffect
+
+            selectedDate = LocalDate.ofEpochDay(dateMillis / (24 * 60 * 60 * 1000))
+
+                Log.d("DatePicker", "Date millis: $dateMillis, Selected date: $selectedDate")
+        }
 
     val books by viewModel.books.collectAsState()
     val orderTotal = books.sumOf { it.price.toDouble() }
@@ -83,13 +98,18 @@ fun FavoritesScreen(
                             .fillMaxWidth()
                             .padding(top = 10.dp),
                         dateFormatter = remember { DatePickerFormatter() },
-                        dateValidator = { selectedDate ->
+                        dateValidator = { selectedDate -> 
                             // Calculate the minimum allowed date
                             val minDate = LocalDate.now().plusDays(minDaysFromNow.toLong())
-                            val minDateMillis: Long = minDate.atStartOfDay(ZoneId.systemDefault()).toInstant().toEpochMilli()
+                            val minDateMillis: Long =
+                                minDate.atStartOfDay(ZoneId.of("America/New_York")).toInstant()
+                                    .toEpochMilli()
 
                             // Check if the selected date is equal to or after the minimum allowed date
-                            selectedDate >= minDateMillis
+                            val isValid = selectedDate >= minDateMillis
+                            Log.d("DatePicker", "Selected date: $selectedDate, Min date: $minDateMillis, Is valid: $isValid")
+
+                            isValid
                         },
                         title = { Text(text = "Select a pick-up date:") },
                         headline = { }, // Your custom headline composable
@@ -105,7 +125,7 @@ fun FavoritesScreen(
                     }
                 }
             }
-        }else {
+        } else {
             OrderTotal(orderTotal)
             OrderId(orderId)
             EmailInput(email, setEmail)
@@ -115,7 +135,7 @@ fun FavoritesScreen(
                     .background(MaterialTheme.colorScheme.background)
                     .padding(bottom = 10.dp, start = 10.dp, end = 10.dp),
                 verticalAlignment = Alignment.CenterVertically
-            ){
+            ) {
                 Text(
                     text = "Pick up date: $selectedDate",
                     textAlign = TextAlign.Start,
@@ -123,7 +143,7 @@ fun FavoritesScreen(
                         .weight(1f)
                 )
                 Button(
-                    onClick = { isDatePickerDialogOpen = !isDatePickerDialogOpen},
+                    onClick = { isDatePickerDialogOpen = !isDatePickerDialogOpen },
                     modifier = Modifier.height(40.dp),
                     shape = RoundedCornerShape(5.dp),
                     contentPadding = PaddingValues(5.dp),
@@ -136,7 +156,7 @@ fun FavoritesScreen(
                     .background(MaterialTheme.colorScheme.background)
                     .padding(bottom = 10.dp, start = 10.dp, end = 10.dp),
                 verticalAlignment = Alignment.CenterVertically
-            ){
+            ) {
                 Button(
                     onClick = { /*TODO*/ },
                     modifier = Modifier
@@ -159,15 +179,7 @@ fun FavoritesScreen(
             }
         }
 
-        LaunchedEffect(datePickerState.selectedDateMillis) {
-            val dateMillis = datePickerState.selectedDateMillis ?: return@LaunchedEffect
-
-            val timeZone = ZoneId.systemDefault()
-
-            selectedDate = Instant.ofEpochMilli(dateMillis)
-                .atZone(timeZone)
-                .toLocalDate()
-        }
+        
     }
 }
 
@@ -195,7 +207,12 @@ fun EmailInput(email: String, setEmail: (String) -> Unit) {
                 keyboardType = KeyboardType.Email,
                 capitalization = KeyboardCapitalization.None
             ),
-            leadingIcon = { Icon(imageVector = Icons.Default.Email, contentDescription = "emailIcon") },
+            leadingIcon = {
+                Icon(
+                    imageVector = Icons.Default.Email,
+                    contentDescription = "emailIcon"
+                )
+            },
             singleLine = true,
             modifier = Modifier
                 .weight(2f)
@@ -232,7 +249,7 @@ fun OrderTotal(total: Double) {
         modifier = Modifier
             .background(MaterialTheme.colorScheme.background)
             .padding(bottom = 10.dp, start = 10.dp, end = 10.dp)
-    ){
+    ) {
         Text(
             text = "Total Amount: ",
             modifier = Modifier
@@ -286,7 +303,11 @@ fun FavoritesCard(item: BookEntity, viewModel: QueryViewModel) {
                 horizontalAlignment = Alignment.End,
                 modifier = Modifier
                     .weight(1f)
-                    .padding(end = 16.dp, bottom = 10.dp, top = 10.dp), // Occupy 2/3 of the available space
+                    .padding(
+                        end = 16.dp,
+                        bottom = 10.dp,
+                        top = 10.dp
+                    ), // Occupy 2/3 of the available space
             ) {
                 Text(
                     text = item.price.toString() + " $",
