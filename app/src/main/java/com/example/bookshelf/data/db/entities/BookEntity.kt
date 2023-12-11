@@ -9,6 +9,5 @@ data class BookEntity (
     val description: String,
     val price: Float,
     val volume: Float
-
 )
 

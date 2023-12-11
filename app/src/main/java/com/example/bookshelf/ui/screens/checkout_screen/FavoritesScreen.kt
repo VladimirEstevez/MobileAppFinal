@@ -5,12 +5,9 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
@@ -22,12 +19,10 @@ import androidx.compose.material3.DatePickerDefaults
 import androidx.compose.material3.DatePickerFormatter
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
-import androidx.compose.material3.LocalTextStyle
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextField
 import androidx.compose.material3.rememberDatePickerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -39,7 +34,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.shadow
-import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.semantics.SemanticsProperties.Selected
 import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.VisualTransformation
@@ -48,10 +43,12 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import com.example.bookshelf.data.db.entities.BookEntity
+import com.example.bookshelf.data.db.entities.OrderEntity
 import com.example.bookshelf.ui.screens.beer_inventory_screen.*
 import java.time.Instant
 import java.time.LocalDate
 import java.time.ZoneId
+import java.util.UUID
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -62,11 +59,9 @@ fun FavoritesScreen(
     val uiState by viewModel.uiState.collectAsState(initial = QueryUiState.Loading)
     val (email, setEmail) = remember { mutableStateOf("") }
     val minDaysFromNow = 3
-  var selectedDate by remember {
-    mutableStateOf(
-        LocalDate.now().plusDays(minDaysFromNow.toLong())
-    )
+    var selectedDate by remember { mutableStateOf(LocalDate.now())
 }
+    Log.d("DatePicker", "Selected date: $selectedDate")
     val datePickerState = rememberDatePickerState(
     initialSelectedDateMillis = LocalDate.now().atStartOfDay(ZoneId.of("America/New_York")).toInstant().toEpochMilli()
 )
@@ -77,16 +72,20 @@ fun FavoritesScreen(
     }
 
     LaunchedEffect(datePickerState.selectedDateMillis) {
-            val dateMillis = datePickerState.selectedDateMillis ?: return@LaunchedEffect
+        val dateMillis = datePickerState.selectedDateMillis ?: return@LaunchedEffect
 
-            selectedDate = LocalDate.ofEpochDay(dateMillis / (24 * 60 * 60 * 1000))
+        selectedDate = LocalDate.ofEpochDay(dateMillis / (24 * 60 * 60 * 1000))
 
-                Log.d("DatePicker", "Date millis: $dateMillis, Selected date: $selectedDate")
+        if (selectedDate == LocalDate.now()){
+            selectedDate = LocalDate.now().plusDays(1 + minDaysFromNow.toLong())
         }
+
+        Log.d("DatePicker", "Date millis: $dateMillis, Selected date: $selectedDate")
+    }
 
     val books by viewModel.books.collectAsState()
     val orderTotal = books.sumOf { it.price.toDouble() }
-    val orderId = 0
+    val isButtonEnabled = verifyEmail(email) && selectedDate.isAfter(LocalDate.now()) && books.isNotEmpty()
 
     Column {
         if (isDatePickerDialogOpen) {
@@ -127,7 +126,7 @@ fun FavoritesScreen(
             }
         } else {
             OrderTotal(orderTotal)
-            OrderId(orderId)
+            //OrderId(orderId)
             EmailInput(email, setEmail)
 
             Row(
@@ -158,12 +157,35 @@ fun FavoritesScreen(
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Button(
-                    onClick = { /*TODO*/ },
+                    onClick = {
+                        val selectedBooks = buildString {
+                            books.forEachIndexed { index, book ->
+                                append(book.id)
+                                if (index < books.size - 1) {
+                                    append(", ")
+                                }
+                            }
+                        }
+
+                        val newOrder = OrderEntity(
+                            customerEmail = email,
+                            pickupDate = selectedDate.toEpochDay(),
+                            beerIds = selectedBooks,
+                            totalPrice = orderTotal,
+                            orderStatus = "Pending",
+                        )
+
+                        viewModel.submitOrder(newOrder)
+
+                        setEmail("")
+                        selectedDate = LocalDate.now().plusDays(1 + minDaysFromNow.toLong())
+                    },
                     modifier = Modifier
                         .height(40.dp)
                         .fillMaxWidth(),
                     shape = RoundedCornerShape(10.dp),
                     contentPadding = PaddingValues(5.dp),
+                    enabled = isButtonEnabled
                 ) {
                     Text("Submit Order!")
                 }
@@ -222,28 +244,6 @@ fun EmailInput(email: String, setEmail: (String) -> Unit) {
 }
 
 @Composable
-fun OrderId(orderId: Int) {
-    Row(
-        modifier = Modifier
-            .background(MaterialTheme.colorScheme.background)
-            .padding(bottom = 10.dp, start = 10.dp, end = 10.dp)
-    ) {
-        Text(
-            text = "Order ID: ",
-            modifier = Modifier
-                .weight(1f)
-        )
-
-        Text(
-            text = orderId.toString(),
-            textAlign = TextAlign.End,
-            modifier = Modifier
-                .weight(1f)
-        )
-    }
-}
-
-@Composable
 fun OrderTotal(total: Double) {
     Row(
         modifier = Modifier
@@ -268,7 +268,6 @@ fun OrderTotal(total: Double) {
 @Composable
 fun FavoritesCard(item: BookEntity, viewModel: QueryViewModel) {
     var buttonClicked by remember { mutableStateOf(false) }
-    // Your existing card composable, modified to use data from the item
     Surface(
         modifier = Modifier
             .fillMaxWidth()
@@ -306,8 +305,9 @@ fun FavoritesCard(item: BookEntity, viewModel: QueryViewModel) {
                     .padding(
                         end = 16.dp,
                         bottom = 10.dp,
-                        top = 10.dp
-                    ), // Occupy 2/3 of the available space
+                        top = 10.dp,
+                        start = 10.dp
+                    )
             ) {
                 Text(
                     text = "Price: " + item.price.toString() + " $",
@@ -329,9 +329,14 @@ fun FavoritesCard(item: BookEntity, viewModel: QueryViewModel) {
 
     LaunchedEffect(buttonClicked) {
         if (buttonClicked) {
-            //viewModel.removeFavoriteBook(item)
+            //viewModel.bookDao.delete(item)
             buttonClicked = false // Reset the state
         }
     }
 
+}
+
+fun verifyEmail(email: String): Boolean{
+    val emailRegex = Regex("^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Z|a-z]{2,}\$")
+    return emailRegex.matches(email)
 }

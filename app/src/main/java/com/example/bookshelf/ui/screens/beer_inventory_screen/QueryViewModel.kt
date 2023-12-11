@@ -12,7 +12,9 @@ import com.example.bookshelf.BookshelfApplication
 import com.example.bookshelf.data.BookshelfRepository
 
 import com.example.bookshelf.data.db.dao.BookDao
+import com.example.bookshelf.data.db.dao.OrderDao
 import com.example.bookshelf.data.db.entities.BookEntity
+import com.example.bookshelf.data.db.entities.OrderEntity
 import com.example.bookshelf.model.Book
 import com.example.bookshelf.model.Volume
 import kotlinx.coroutines.Dispatchers
@@ -24,10 +26,12 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import retrofit2.HttpException
 import java.io.IOException
+import java.time.LocalDate
 
 class QueryViewModel(
     private val bookshelfRepository: BookshelfRepository,
-    private val bookDao: BookDao
+    private val bookDao: BookDao,
+    private val orderDao: OrderDao
 ) : ViewModel() {
     private val _uiState = MutableStateFlow<QueryUiState>(QueryUiState.Loading)
     val uiState = _uiState.asStateFlow()
@@ -50,34 +54,8 @@ class QueryViewModel(
         private set
 
 
-private val _books = MutableStateFlow<List<BookEntity>>(emptyList())
-val books: StateFlow<List<BookEntity>> = _books.asStateFlow()
-
-    // fun isBookFavorite(book: Book): Boolean {
-    //     return !favoriteBooks.filter { x -> x.id == book.id }.isEmpty()
-    // }
-
-
-    // fun addFavoriteBook(book: Book) {
-    //     if (!isBookFavorite(book)) {
-    //         favoriteBooks.add(book)
-    //         favoritesUpdated()
-    //     }
-    // }
-
-    // fun removeFavoriteBook(book: Book) {
-    //     favoriteBooks.removeIf { it.id == book.id }
-    //     favoritesUpdated()
-    // }
-
-
-    // private fun favoritesUpdated() {
-    //     viewModelScope.launch {
-    //         favoritesfUiState = QueryUiState.Loading
-    //         favoritesfUiState = QueryUiState.Success(favoriteBooks)
-    //     }
-    // }
-    // // Logic for Favorite books -- End
+    private val _books = MutableStateFlow<List<BookEntity>>(emptyList())
+    val books: StateFlow<List<BookEntity>> = _books.asStateFlow()
 
 
     suspend fun isBookFavorite(bookId: String): Boolean {
@@ -109,7 +87,7 @@ val books: StateFlow<List<BookEntity>> = _books.asStateFlow()
         }
     }
 
-fun getBeers() {
+    fun getBeers() {
     viewModelScope.launch(Dispatchers.IO) {
         updateSearchStarted(true)
         try {
@@ -178,6 +156,32 @@ fun getBeers() {
         }
     }
 
+    fun submitOrder(newOrder: OrderEntity) {
+        viewModelScope.launch {
+            try {
+                // Insert the new OrderEntity into the ordersDao or a similar table
+                insertOrder(newOrder)
+
+                // Optional: Clear the selected books or perform any other necessary actions
+                // viewModelScope.launch {
+                //     _books.emit(emptyList())
+                // }
+
+            } catch (e: IOException) {
+                // Handle IOException
+            } catch (e: HttpException) {
+                // Handle HttpException
+            }
+        }
+    }
+
+    private suspend fun insertOrder(order: OrderEntity) {
+        withContext(Dispatchers.IO) {
+            orderDao.insert(order)
+            bookDao.clearAll()
+            _books.value = emptyList()
+        }
+    }
 
     // Notes: Question: At moment this is chuck of code is repeated in two files
     //  in QueryViewModel and in DetailsViewModel.
@@ -192,7 +196,8 @@ fun getBeers() {
                     (this[ViewModelProvider.AndroidViewModelFactory.APPLICATION_KEY] as BookshelfApplication)
                 val bookshelfRepository = application.container.bookshelfRepository
                 val bookDao = application.container.appDatabase.bookDao()
-                QueryViewModel(bookshelfRepository = bookshelfRepository, bookDao = bookDao)
+                val orderDao = application.container.appDatabase.orderDao()
+                QueryViewModel(bookshelfRepository = bookshelfRepository, bookDao = bookDao, orderDao = orderDao)
             }
         }
     }
