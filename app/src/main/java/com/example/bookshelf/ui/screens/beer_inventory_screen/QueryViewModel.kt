@@ -1,5 +1,6 @@
 package com.example.bookshelf.ui.screens.beer_inventory_screen
 
+import android.media.CamcorderProfile.getAll
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -30,8 +31,8 @@ import java.time.LocalDate
 
 class QueryViewModel(
     private val bookshelfRepository: BookshelfRepository,
-    private val bookDao: BookDao,
-    private val orderDao: OrderDao
+    var bookDao: BookDao,
+    var orderDao: OrderDao
 ) : ViewModel() {
     private val _uiState = MutableStateFlow<QueryUiState>(QueryUiState.Loading)
     val uiState = _uiState.asStateFlow()
@@ -56,6 +57,9 @@ class QueryViewModel(
 
     private val _books = MutableStateFlow<List<BookEntity>>(emptyList())
     val books: StateFlow<List<BookEntity>> = _books.asStateFlow()
+
+    private val _orders = MutableStateFlow<List<OrderEntity>>(emptyList())
+    val orders: StateFlow<List<OrderEntity>> = _orders.asStateFlow()
 
 
     suspend fun isBookFavorite(bookId: String): Boolean {
@@ -97,7 +101,7 @@ class QueryViewModel(
         } catch (e: HttpException) {
             // Handle HttpException
         } finally {
-            withContext(Dispatchers.Main) {
+            withContext(Dispatchers.Unconfined) {
                 updateSearchStarted(false)
             }
         }
@@ -168,14 +172,24 @@ class QueryViewModel(
         }
     }
 
-    private suspend fun insertOrder(order: OrderEntity) {
+    fun addBeer(book: BookEntity){
+        bookDao.insert(book)
+        _books.value = bookDao.getAll()
+    }
+
+    fun getOrders(){
+        _orders.value = orderDao.getAll()
+    }
+
+    suspend fun insertOrder(order: OrderEntity) {
         withContext(Dispatchers.IO) {
             orderDao.insert(order)
             bookDao.clearAll()
             _books.value = emptyList()
+            _orders.value = orderDao.getAll()
         }
     }
-    private suspend fun deleteBook(book: BookEntity) {
+    suspend fun deleteBook(book: BookEntity) {
         withContext(Dispatchers.IO) {
             bookDao.delete(book)
             _books.value = bookDao.getAll()

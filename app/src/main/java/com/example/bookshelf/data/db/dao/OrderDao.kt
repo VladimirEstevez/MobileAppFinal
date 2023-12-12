@@ -13,8 +13,8 @@ import com.example.bookshelf.data.db.entities.OrderEntity
 interface OrderDao {
 
 
-//    @Query("SELECT * FROM orders")
-//    fun getAll(): List<OrderEntity>
+    @Query("SELECT * FROM orders")
+    fun getAll(): List<OrderEntity>
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     fun insert(order: OrderEntity)
